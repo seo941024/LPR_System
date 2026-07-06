@@ -1,0 +1,6 @@
+path: C:/Users/AISW_203_106/Desktop/LPR_Parking/dataset
+train: images/train
+val: images/val
+
+nc: 1
+names: ['plate']
