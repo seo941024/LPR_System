@@ -547,19 +547,29 @@ class VideoWorker(QThread):
         self.is_running = True
 
     def run(self):
+        # ── 실시간 추적(track) + 백그라운드 OCR 구조 ─────────────────
+        #   YOLO track이 매 프레임 박스를 그려 대상을 실시간으로 따라가고
+        #   (사라지면 자동 소멸), OCR은 track_id별로 백그라운드에서 한 번만
+        #   수행해 번호판 텍스트를 채운다. → 박스 지연·프레임 끊김 해소.
+        from detector import track_plates
+
         _release_vote_buffer(self.camera_id)
         cap = cv2.VideoCapture(self.video_path)
         fps   = cap.get(cv2.CAP_PROP_FPS) or 30.0
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
         frame_time = 1.0 / fps
-        executor  = ThreadPoolExecutor(max_workers=1)
-        pending   = None
-        db_conn   = get_connection()
-        fc = 0; detected = 0; last_boxes = []
+        executor    = ThreadPoolExecutor(max_workers=1)
+        pending     = None
+        pending_tid = None
+        db_conn     = get_connection()
+        fc = 0; detected = 0
+        track_texts = {}   # {track_id: {"plate_text","whitelisted","blacklisted"}}
+        track_tried = {}   # {track_id: 마지막 OCR 시도 프레임번호}
 
-        def _ocr_task(frame_copy, fc_num):
-            return _pf(frame_copy, fc_num, self.camera_id, self.direction,
-                       os.path.basename(self.video_path), db_conn, None)
+        def _ocr_task(roi, bbox, fc_num):
+            return pl.process_tracked_roi(
+                roi, bbox, self.camera_id, self.direction,
+                os.path.basename(self.video_path), db_conn, fc_num)
 
         try:
             while self.is_running:
@@ -569,55 +579,93 @@ class VideoWorker(QThread):
                     break
                 fc += 1
 
+                # 1) YOLO track — 매 프레임 실시간 박스/추적
+                tracks  = track_plates(frame)          # [(x,y,w,h,tid,roi), ...]
+                cur_ids = {t[4] for t in tracks}
+
+                # 2) 완료된 OCR 결과 수거
                 if pending is not None and pending.done():
                     try:
-                        results = pending.result() or []
+                        res = pending.result()
                     except Exception:
-                        results = []
-                    pending = None
-
-                    for r in results:
+                        res = None
+                    if res:
                         detected += 1
-                        last_boxes = [(r["bbox"], r["plate_text"]) for r in results]
-                        roi = r.get("roi")
+                        track_texts[pending_tid] = {
+                            "plate_text":  res["plate_text"],
+                            "whitelisted": res.get("whitelisted", False),
+                            "blacklisted": res.get("blacklisted", False),
+                        }
+                        roi = res.get("roi")
                         if roi is not None and hasattr(roi, "size") and roi.size > 0:
                             self.crop_ready.emit(
-                                cv2_to_qimage(roi),
-                                r["plate_text"],
-                                f"신뢰도 {r['confidence']:.1%}",
-                                r["plate_type"],
-                            )
-                        rd = {**r,
-                              "is_white": r.get("whitelisted", False),
-                              "is_black": r.get("blacklisted", False)}
+                                cv2_to_qimage(roi), res["plate_text"],
+                                f"신뢰도 {res['confidence']:.1%}", res["plate_type"])
+                        rd = {**res,
+                              "is_white": res.get("whitelisted", False),
+                              "is_black": res.get("blacklisted", False)}
                         self.log_ready.emit(rd)
-                        if r.get("blacklisted"):
+                        if res.get("blacklisted"):
                             self.alert_signal.emit({
-                                "msg":        f"차단 차량: {r['plate_text']}",
-                                "ts":         r["timestamp"],
-                                "camera":     r["camera_id"],
-                                "plate_text": r["plate_text"],
+                                "msg":        f"차단 차량: {res['plate_text']}",
+                                "ts":         res["timestamp"],
+                                "camera":     res["camera_id"],
+                                "plate_text": res["plate_text"],
                             })
+                    pending = None; pending_tid = None
 
-                if fc % pl.PROCESS_EVERY_N == 0 and pending is None:
-                    pending = executor.submit(_ocr_task, frame.copy(), fc)
+                # 3) 다음 OCR 제출 — 텍스트 미확정 track 중 가장 큰 것(0.5초 쿨다운)
+                if pending is None:
+                    best = None; best_area = 0
+                    for (x, y, w, h, tid, roi) in tracks:
+                        if tid in track_texts:
+                            continue
+                        if fc - track_tried.get(tid, -10**9) < int(fps * 0.5):
+                            continue
+                        if roi is None or roi.size == 0:
+                            continue
+                        if w * h > best_area:
+                            best_area = w * h
+                            best = (tid, roi, (x, y, w, h))
+                    if best is not None:
+                        tid, roi, bbox = best
+                        track_tried[tid] = fc
+                        pending_tid = tid
+                        pending = executor.submit(_ocr_task, roi.copy(), bbox, fc)
 
-                draw = frame.copy()
-                for (x, y, w, h), text in last_boxes:
-                    # 박스 배경 (반투명)
-                    cv2.rectangle(draw, (x, y), (x + w, y + h), (34, 197, 94), 3)
-                    # 번호판 텍스트 PIL로 그리기
-                    draw = put_text_kr(
-                        draw, text, x, y,
-                        font_size=26,
-                        text_color=(255, 255, 255),
-                        bg_color=(34, 197, 94),
-                    )
+                # 4) 박스 렌더링 — 송출용 축소본에 그린다(렌더/전송 부하 ↓)
+                #    원본 1920×1080에 한글 렌더(put_text_kr)를 돌리면 프레임당
+                #    수백ms라 렉이 생김 → 960폭으로 줄인 뒤 박스·텍스트를 그린다.
+                #    track 좌표도 같은 배율로 축소.
+                DISP_W = 960
+                sc   = DISP_W / max(1, frame.shape[1])
+                disp = cv2.resize(frame, (DISP_W, int(frame.shape[0] * sc)))
+                for (x, y, w, h, tid, roi) in tracks:
+                    info = track_texts.get(tid)
+                    if info:
+                        label = info["plate_text"]
+                        color = (0, 0, 255) if info["blacklisted"] else (34, 197, 94)
+                    else:
+                        label = "인식중…"
+                        color = (150, 150, 150)
+                    sx, sy = int(x * sc), int(y * sc)
+                    sw, shh = int(w * sc), int(h * sc)
+                    cv2.rectangle(disp, (sx, sy), (sx + sw, sy + shh), color, 2)
+                    ly = sy if sy > 30 else sy + shh + 30
+                    disp = put_text_kr(disp, label, sx, ly, font_size=20,
+                                       text_color=(255, 255, 255), bg_color=color)
 
+                # 5) emit (축소본)
                 if fc % max(1, int(fps / 30)) == 0:
-                    self.frame_ready.emit(cv2_to_qimage(draw))
+                    self.frame_ready.emit(cv2_to_qimage(disp))
                 if fc % 5 == 0:
                     self.progress_ready.emit(fc, total, detected)
+
+                # 6) 메모리: 사라진 track 기록 정리
+                if len(track_texts) > 300:
+                    for tid in [t for t in track_texts if t not in cur_ids][:100]:
+                        track_texts.pop(tid, None)
+                        track_tried.pop(tid, None)
 
                 elapsed = time.time() - t0
                 if frame_time - elapsed > 0:
@@ -625,6 +673,7 @@ class VideoWorker(QThread):
 
         except Exception as e:
             print(f"[Video Error] {e}")
+            import traceback; traceback.print_exc()
         finally:
             executor.shutdown(wait=False)
             cap.release()
@@ -644,11 +693,11 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(STYLE_SHEET)
 
         init_db()
-        self.gpu_avail      = is_gpu_available()
-        try:
-            init_reader(gpu=True)
-        except Exception:
-            init_reader(gpu=False)
+        # OCR(PaddleOCR)은 CPU 전용 paddle 사용 — YOLO(torch)-GPU와의 CUDA 심볼
+        # 충돌을 피하기 위함. 번호판 crop만 처리하므로 CPU로도 충분히 빠르다.
+        # (YOLO 검출은 detector.py에서 자동으로 GPU 사용)
+        self.gpu_avail      = is_gpu_available()   # OCR GPU 가용 여부(현재 항상 False)
+        init_reader(gpu=self.gpu_avail)
         self.conn           = get_connection()
         self.alert_list     = []
         self.worker         = None
@@ -1971,11 +2020,41 @@ class MainWindow(QMainWindow):
     def show_alert_popup(self, data):
         try:
             self.alert_list.insert(0, data)
-            QMessageBox.warning(
-                self, "블랙리스트 차량 인식!",
-                f"블랙리스트 차단 차량 인식!\n\n번호판: {data.get('plate_text', '')}\n"
-                f"카메라: {data.get('camera', '')}\n시각: {data.get('ts', '')}",
+            dlg = QDialog(self)
+            dlg.setWindowTitle("블랙리스트 차량 인식!")
+            dlg.setMinimumSize(480, 260)
+            dlg.setStyleSheet("background-color: #1a0000;")
+            lo = QVBoxLayout(dlg)
+            lo.setContentsMargins(32, 28, 32, 28)
+            lo.setSpacing(16)
+
+            title_lbl = QLabel("⚠ 블랙리스트 차단 차량 인식!")
+            title_lbl.setStyleSheet("color: #F59E0B; font-size: 22px; font-weight: bold;")
+            title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lo.addWidget(title_lbl)
+
+            plate_lbl = QLabel(data.get("plate_text", ""))
+            plate_lbl.setStyleSheet("color: #FBBF24; font-size: 36px; font-weight: bold;")
+            plate_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lo.addWidget(plate_lbl)
+
+            info_lbl = QLabel(
+                f"카메라: {data.get('camera', '')}     시각: {data.get('ts', '')}"
             )
+            info_lbl.setStyleSheet("color: #FCD34D; font-size: 15px;")
+            info_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lo.addWidget(info_lbl)
+
+            ok_btn = QPushButton("확인")
+            ok_btn.setFixedHeight(42)
+            ok_btn.setStyleSheet(
+                "background-color: #EF4444; color: white; font-size: 16px; "
+                "font-weight: bold; border-radius: 8px; border: none;"
+            )
+            ok_btn.clicked.connect(dlg.accept)
+            lo.addWidget(ok_btn)
+
+            dlg.exec()
             self.refresh_dashboard()
         except Exception:
             pass
@@ -2037,7 +2116,7 @@ class MainWindow(QMainWindow):
         )
         gl = QHBoxLayout(gpu_card); gl.setContentsMargins(16, 14, 16, 14); gl.setSpacing(12)
         gpu_text_col = QVBoxLayout(); gpu_text_col.setSpacing(3)
-        gpu_title = QLabel("GPU 가속 (EasyOCR)")
+        gpu_title = QLabel("GPU 가속 (PaddleOCR)")
         gpu_title.setStyleSheet(f"font-weight: bold; font-size: 13px; color: {C_TEXT};")
         gpu_desc  = QLabel("OCR 추론을 GPU로 실행. CPU 대비 5~10배 빠름.")
         gpu_desc.setObjectName("Muted")
@@ -2127,7 +2206,7 @@ class MainWindow(QMainWindow):
     def _toggle_gpu(self, state):
         use_gpu = (state == Qt.CheckState.Checked.value)
         self.gpu_chk.setEnabled(False)
-        self.gpu_status_lbl.setText("EasyOCR 모델 재로딩 중..")
+        self.gpu_status_lbl.setText("PaddleOCR 모델 재로딩 중..")
         self.gpu_status_lbl.setStyleSheet(f"color: {C_MUTED}; font-size: 14px;")
 
         def _reload():

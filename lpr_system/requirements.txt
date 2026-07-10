@@ -1,0 +1,28 @@
+# 한국 번호판 인식 시스템 — 의존 패키지
+# pip install -r requirements.txt
+
+# UI
+PyQt6>=6.5.0
+qtawesome>=1.3.0
+
+# 영상 처리 (PaddleOCR 2.7 호환 위해 4.6.x 고정)
+opencv-python==4.6.0.66
+opencv-contrib-python==4.6.0.66
+
+# 검출 (YOLOv11m) + 추적 (ByteTrack)
+ultralytics>=8.4.0
+torch>=2.5.0
+torchvision>=0.20.0
+lap>=0.5.0                  # ByteTrack track_id 할당(헝가리안)
+
+# OCR (PaddleOCR 2.7, CPU 전용 paddle)
+# ★ paddlepaddle-gpu는 import 시 CUDA 심볼을 등록해 torch(YOLO)-GPU와 충돌.
+#   OCR은 작은 번호판 crop만 처리하므로 CPU로 충분 → CPU 전용 paddle 사용.
+paddleocr==2.7.3
+paddlepaddle==2.6.2
+
+# 기본 (PaddlePaddle 2.6 호환 위해 numpy 1.x 고정)
+numpy==1.26.4
+Pillow>=9.0.0
+pywin32>=306
+tqdm>=4.0.0

@@ -11,6 +11,16 @@ log/
 # ── 학습 산출물 / 모델 가중치 ─────────────────────────
 runs/
 *.pt
+# ★ 단, 앱 실행에 필요한 배포용 모델은 커밋에 포함 (38MB, GitHub 한도 내)
+!lpr_system/models/plate_yolo11m.pt
+
+# ── 런타임 산출물 (앱이 자동 생성) ────────────────────
+lpr_system/logs/
+lpr_system/plate_images/
+lpr_system/exports/
+lpr_system/parking.db
+lpr_system/parking.db-shm
+lpr_system/parking.db-wal
 
 # ── 임시 / 로그 파일 ──────────────────────────────────
 ocr_train_result.txt
