@@ -59,19 +59,19 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 맞는 방식으로 적재·탐색·시각화하는 과정을 연습했다.
 
 **DB Browser for SQLite** — 원본 쿼리 검증
-<img src="assets/sqlite_browser.png" width="700">
+<img src="https://raw.githubusercontent.com/seo941024/LPR_System/master/analytics/assets/sqlite_browser.png" width="700">
 
 **Power Query** — CSV 3개(plate_logs / entry_exit_log / whitelist) 적재 후
 테이블 간 관계 구성
-<img src="assets/power_query_model.png" width="700">
+<img src="https://raw.githubusercontent.com/seo941024/LPR_System/master/analytics/assets/power_query_model.png" width="700">
 
 **Power BI** — `plate_text` 필터, `event_type`별 집계 시각화
-<img src="assets/power_bi.png" width="700">
+<img src="https://raw.githubusercontent.com/seo941024/LPR_System/master/analytics/assets/power_bi.png" width="700">
 
 **Databricks (PySpark · Spark SQL)** — `spark.table()`로 Delta 테이블 로드,
 DataFrame API와 `%sql` 매직 양쪽으로 동일 집계(`plate_color`별 건수) 수행.
 JOIN 시 컬럼명 충돌(`AMBIGUOUS_REFERENCE`) 등 실제 디버깅 과정도 거쳤다.
-<img src="assets/databricks_spark.png" width="700">
+<img src="https://raw.githubusercontent.com/seo941024/LPR_System/master/analytics/assets/databricks_spark.png" width="700">
 
 > 목적은 "같은 질문(색상별 분포, 이벤트별 집계)에 도구별로 어떻게 접근하는가"를
 > 비교하는 것 — SQL 엔진(SQLite/Spark SQL), ETL 도구(Power Query),
