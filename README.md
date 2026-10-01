@@ -3,6 +3,8 @@
 YOLOv11m 번호판 검출 + PaddleOCR 한국어 인식 + ByteTrack 실시간 추적을 결합한
 주차장 입·출차 관리 데스크톱 애플리케이션.
 
+<img src="https://raw.githubusercontent.com/seo941024/LPR_System/master/assets/app_screenshot.png" width="800">
+
 ---
 
 ## 프로젝트 하이라이트
