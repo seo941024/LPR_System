@@ -197,14 +197,14 @@ def _detect_yolo(
             w0 = x2 - x1; h0 = y2 - y1
             if w0 < 20 or h0 < 10:
                 continue
-            # ★ 배경의 멀리 있는 다른 차 번호판 제거: 대상 차는 화면에서 크게 잡힘.
+            # 배경의 멀리 있는 다른 차 번호판 제거: 대상 차는 화면에서 크게 잡힘.
             #   가로폭이 프레임 폭의 일정 비율 미만이면 배경 차로 보고 버린다.
             if w0 < w_f * MIN_PLATE_W_FRAC:
                 continue
             aspect = w0 / max(h0, 1)
             if not (MIN_ASPECT < aspect < MAX_ASPECT):
                 continue
-            # ★ YOLO 박스는 글자에 타이트하게 학습됨 → 패딩 추가로 끝자리 잘림 방지
+            # YOLO 박스는 글자에 타이트하게 학습됨 → 패딩 추가로 끝자리 잘림 방지
             #   긴 번호판일수록 좌우 끝자리가 박스 밖으로 밀려 잘리므로 가로 패딩을
             #   크게(28%) 줌. 세로는 위아래 여백이 과하면 노이즈라 15% 유지.
             pad_x = int(w0 * 0.18); pad_y = int(h0 * 0.15)
@@ -214,7 +214,7 @@ def _detect_yolo(
             if roi.size == 0:
                 continue
             w = x2 - x1; h = y2 - y1
-            # ★ contour=None → preprocess_for_ocr가 YOLO 경량 경로 사용
+            # contour=None → preprocess_for_ocr가 YOLO 경량 경로 사용
             #   (YOLO crop은 이미 깨끗 → deskew/strip/morph/언샤프 불필요)
             candidates.append((roi, (x1, y1, w, h), None))
 
@@ -226,7 +226,7 @@ def _detect_yolo(
 #   갱신한다. 영상 UI에서 박스가 대상을 실시간으로 따라다니다 대상이
 #   사라지면 자동으로 없어지게 하기 위한 용도. (OCR과 분리)
 #
-#   ★ track()은 프레임 간 상태(persist)를 유지하므로 반드시 '순차'로
+#   track()은 프레임 간 상태(persist)를 유지하므로 반드시 '순차'로
 #     호출해야 한다. 같은 모델 인스턴스에 detect(model())와 track을
 #     번갈아 쓰면 상태가 꼬이므로, 영상 모드에서는 track만 사용한다.
 
@@ -420,7 +420,7 @@ def detect_plate_candidates(
             if _is_road_sign(roi):
                 continue
  
-            # ★ Bug Fix: findContours는 frame 좌표 반환 → ROI 로컬 좌표로 변환
+            # Bug Fix: findContours는 frame 좌표 반환 → ROI 로컬 좌표로 변환
             cnt_local = cnt - np.array([[[x, y]]], dtype=np.int32)
             candidates.append((roi, (x, y, w, h), cnt_local, edge_density))
  
@@ -466,7 +466,7 @@ def classify_plate_color(plate_roi: np.ndarray) -> Tuple[str, str]:
     if scores[best] < 20:
         return "WHITE", "NEW"
 
-    # ★ 유채색(초록·노랑·파랑 등)은 배경을 압도적으로 차지할 때만 채택.
+    # 유채색(초록·노랑·파랑 등)은 배경을 압도적으로 차지할 때만 채택.
     #   어두운 회색판이 바닥 반사 등으로 소량 초록에 걸려 OLD로 오분류되는 것 방지.
     #   진짜 초록(구식)판은 샘플의 대부분이 초록이라 비율이 높다.
     if best != "WHITE" and (scores[best] / total) < 0.20:
@@ -573,12 +573,12 @@ def preprocess_for_ocr(
         return np.zeros((NORM_HEIGHT, NORM_WIDTH), dtype=np.uint8)
  
     # ── YOLO 경로 (contour is None) ───────────────────────────────
-    #   ★ 평탄화(기하 보정): 기울어진/대각선 번호판을 정면으로 폄.
+    #   평탄화(기하 보정): 기울어진/대각선 번호판을 정면으로 폄.
     #   그 뒤 강제 resize·strip·morph·언샤프·반전은 숫자를 망가뜨리므로
     #   생략하고, 어두울 때만 가벼운 감마+CLAHE 후 OCR에 투입.
     if contour is None:
         plate_roi = _rectify_plate(plate_roi)   # 평탄화 전처리
-        # ★ 초록(구식) 번호판: 흰 글자 vs 녹색 배경 → R채널이 대비 최대.
+        # 초록(구식) 번호판: 흰 글자 vs 녹색 배경 → R채널이 대비 최대.
         #   회색조로 바꾸면 둘 다 밝아져 대비가 죽으므로 R채널 사용 + 2배 확대.
         if plate_color == "GREENYELLOW" and plate_roi.ndim == 3:
             # 초록 배경(G↑ R↓) + 흰 글자(R↑): R채널이 배경 억제에 가장 효과적
@@ -610,7 +610,7 @@ def preprocess_for_ocr(
                 gray  = cv2.LUT(gray, lut)
             clahe_y = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
             gray = clahe_y.apply(gray)
-        # ★ 둘레 여백 추가 → OCR 텍스트 검출기가 경계에 붙은
+        # 둘레 여백 추가 → OCR 텍스트 검출기가 경계에 붙은
         #   끝글자(예: 148의 '1')를 버리지 않도록 함
         bx = max(8, int(gray.shape[1] * 0.06))
         by = max(8, int(gray.shape[0] * 0.10))

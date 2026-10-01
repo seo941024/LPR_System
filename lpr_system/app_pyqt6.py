@@ -2028,7 +2028,7 @@ class MainWindow(QMainWindow):
             lo.setContentsMargins(32, 28, 32, 28)
             lo.setSpacing(16)
 
-            title_lbl = QLabel("⚠ 블랙리스트 차단 차량 인식!")
+            title_lbl = QLabel("블랙리스트 차단 차량 인식!")
             title_lbl.setStyleSheet("color: #F59E0B; font-size: 22px; font-weight: bold;")
             title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             lo.addWidget(title_lbl)

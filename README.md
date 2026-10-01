@@ -96,7 +96,7 @@ pip install -r lpr_system/requirements.txt
 - paddleocr==2.7.3, **paddlepaddle==2.6.2 (CPU 전용)** (OCR)
 - opencv-python==4.6.0.66, numpy==1.26.4
 
-> ⚠️ **paddlepaddle는 반드시 CPU 버전**을 쓸 것. GPU 버전(`paddlepaddle-gpu`)은
+> **paddlepaddle는 반드시 CPU 버전**을 쓸 것. GPU 버전(`paddlepaddle-gpu`)은
 > import 시 CUDA 심볼을 등록해 torch(YOLO)-GPU와 충돌한다. OCR은 번호판 crop만
 > 처리하므로 CPU로도 충분히 빠르다.
 

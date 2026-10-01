@@ -129,7 +129,7 @@ def run_demo():
 
         # 화이트리스트 확인
         allowed = is_whitelisted(conn, plate_text)
-        status  = "✅ GRANTED" if allowed else "🚫 UNKNOWN"
+        status  = "GRANTED" if allowed else "UNKNOWN"
 
         print(
             f"  {plate_text:^14}  {plate_type:^6}  "

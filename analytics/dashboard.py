@@ -68,7 +68,7 @@ visits["visitor_type"] = visits["plate_text"].isin(whitelist["plate_text"]).map(
 )
 
 # ── 헤더 & KPI ──────────────────────────────────────────────
-st.title("🅿️ 주차장 입출차 데이터 분석")
+st.title("주차장 입출차 데이터 분석")
 st.caption(
     f"기간: {visits['date'].min()} ~ {visits['date'].max()}  ·  "
     "데이터: LPR 시스템 SQLite 로그 기반 (데모용 합성 데이터)"

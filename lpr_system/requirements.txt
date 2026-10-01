@@ -16,7 +16,7 @@ torchvision>=0.20.0
 lap>=0.5.0                  # ByteTrack track_id 할당(헝가리안)
 
 # OCR (PaddleOCR 2.7, CPU 전용 paddle)
-# ★ paddlepaddle-gpu는 import 시 CUDA 심볼을 등록해 torch(YOLO)-GPU와 충돌.
+# paddlepaddle-gpu는 import 시 CUDA 심볼을 등록해 torch(YOLO)-GPU와 충돌.
 #   OCR은 작은 번호판 crop만 처리하므로 CPU로 충분 → CPU 전용 paddle 사용.
 paddleocr==2.7.3
 paddlepaddle==2.6.2

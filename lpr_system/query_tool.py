@@ -85,23 +85,23 @@ def cmd_stats(conn):
 
 def cmd_add(conn, plate_text, owner="", desc=""):
     if add_whitelist(conn, plate_text, owner, desc):
-        print(f"✅ 화이트리스트 등록: {plate_text} ({owner})")
+        print(f"화이트리스트 등록: {plate_text} ({owner})")
     else:
-        print(f"❌ 이미 등록된 번호판: {plate_text}")
+        print(f"이미 등록된 번호판: {plate_text}")
 
 
 def cmd_block(conn, plate_text, reason=""):
     if add_blacklist(conn, plate_text, reason):
-        print(f"🚫 블랙리스트 등록: {plate_text} — {reason}")
+        print(f"블랙리스트 등록: {plate_text} — {reason}")
     else:
-        print(f"❌ 이미 차단된 번호판: {plate_text}")
+        print(f"이미 차단된 번호판: {plate_text}")
 
 
 def cmd_unblock(conn, plate_text):
     if delete_blacklist(conn, plate_text):
-        print(f"✅ 블랙리스트 해제: {plate_text}")
+        print(f"블랙리스트 해제: {plate_text}")
     else:
-        print(f"❌ 블랙리스트에 없음: {plate_text}")
+        print(f"블랙리스트에 없음: {plate_text}")
 
 
 def cmd_blocklist(conn):
@@ -119,12 +119,12 @@ def cmd_blocklist(conn):
 
 def cmd_purge(conn, days=90):
     # 실수 방지를 위한 확인 프롬프트
-    confirm = input(f"⚠️  {days}일 이전 기록을 삭제합니다. 계속하시겠습니까? (yes 입력): ")
+    confirm = input(f"{days}일 이전 기록을 삭제합니다. 계속하시겠습니까? (yes 입력): ")
     if confirm.strip().lower() != "yes":
         print("취소됨")
         return
     n = purge_old_records(conn, days)
-    print(f"🗑  {days}일 이전 {n}건 삭제 완료")
+    print(f"{days}일 이전 {n}건 삭제 완료")
 
 
 def main():
