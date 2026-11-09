@@ -14,6 +14,7 @@ query_tool.py — DB 조회 / 차량 관리 CLI
 """
 
 import sys
+import unicodedata
 from database import (
     get_connection, init_db,
     query_all, query_by_plate, query_by_date, query_statistics,
@@ -23,17 +24,35 @@ from database import (
 )
 
 
+def _width(s) -> int:
+    """터미널 표시 폭. 한글 등 동아시아 전각 문자는 2칸."""
+    return sum(2 if unicodedata.east_asian_width(ch) in "WF" else 1 for ch in str(s))
+
+
+def _pad(s, width: int, align: str = "<") -> str:
+    """표시 폭 기준 정렬. align: '<' 왼쪽, '>' 오른쪽, '^' 가운데"""
+    s = str(s)
+    gap = max(0, width - _width(s))
+    if align == ">":
+        return " " * gap + s
+    if align == "^":
+        return " " * (gap // 2) + s + " " * (gap - gap // 2)
+    return s + " " * gap
+
+
 def _header():
-    print(f"{'ID':>5}  {'번호판':^14}  {'색상':^14}  {'타입':^4}  "
-          f"{'신뢰도':>6}  {'시각':^20}  {'카메라':^8}")
+    print("  ".join([_pad("ID", 5, ">"), _pad("번호판", 14, "^"), _pad("색상", 14, "^"),
+                     _pad("타입", 4, "^"), _pad("신뢰도", 6, ">"), _pad("시각", 20, "^"),
+                     _pad("카메라", 8, "^")]))
     print("─" * 85)
 
 
 def _row(r):
     try:
-        print(f"{r['id']:>5}  {r['plate_text']:^14}  {r['plate_color']:^14}  "
-              f"{r['plate_type']:^4}  {float(r['confidence']):>6.1%}  "
-              f"{r['timestamp']:^20}  {r['camera_id']:^8}")
+        print("  ".join([_pad(r["id"], 5, ">"), _pad(r["plate_text"], 14, "^"),
+                         _pad(r["plate_color"], 14, "^"), _pad(r["plate_type"], 4, "^"),
+                         _pad(f"{float(r['confidence']):.1%}", 6, ">"),
+                         _pad(r["timestamp"], 20, "^"), _pad(r["camera_id"], 8, "^")]))
     except Exception:
         pass
 
@@ -77,10 +96,11 @@ def cmd_stats(conn):
         print("통계 없음")
         return
     print("\n[ 타입·색상별 통계 ]\n")
-    print(f"{'타입':^6}  {'색상':^14}  {'건수':>6}")
+    print("  ".join([_pad("타입", 6, "^"), _pad("색상", 14, "^"), _pad("건수", 6, ">")]))
     print("─" * 32)
     for r in rows:
-        print(f"{r['plate_type']:^6}  {r['plate_color']:^14}  {r['cnt']:>6}")
+        print("  ".join([_pad(r["plate_type"], 6, "^"), _pad(r["plate_color"], 14, "^"),
+                         _pad(r["cnt"], 6, ">")]))
 
 
 def cmd_add(conn, plate_text, owner="", desc=""):
@@ -110,12 +130,12 @@ def cmd_blocklist(conn):
         print("블랙리스트 없음")
         return
     print(f"\n[ 블랙리스트 — {len(rows)}건 ]\n")
-    print(f"{'번호판':^14}  {'사유':^30}  {'등록일':^12}")
+    print("  ".join([_pad("번호판", 14, "^"), _pad("사유", 30, "^"), _pad("등록일", 12, "^")]))
     print("─" * 62)
     for r in rows:
         r = dict(r)   # sqlite3.Row에는 .get()이 없음
-        print(f"{r['plate_text']:^14}  {r.get('reason') or '':^30}  "
-              f"{(r.get('registered_at') or '')[:10]:^12}")
+        print("  ".join([_pad(r["plate_text"], 14, "^"), _pad(r.get("reason") or "", 30, "^"),
+                         _pad((r.get("registered_at") or "")[:10], 12, "^")]))
 
 
 def cmd_purge(conn, days=90):

@@ -416,7 +416,8 @@ def process_frame(
                 safe_ts    = timestamp.replace(":", "-").replace(" ", "_")
                 date_dir   = _get_date_image_dir(timestamp)
                 image_path = os.path.join(date_dir, f"{final_text}_{safe_ts}.jpg")
-                cv2.imwrite(image_path, final_roi)
+                # cv2.imwrite는 Windows에서 한글 파일명을 깨뜨려 DB 경로와 실제 파일명이 달라짐
+                cv2.imencode(".jpg", final_roi)[1].tofile(image_path)
 
             insert_plate_log(
                 conn, final_text, plate_color, plate_type, final_conf,
@@ -531,7 +532,8 @@ def process_tracked_roi(
             safe_ts    = timestamp.replace(":", "-").replace(" ", "_")
             date_dir   = _get_date_image_dir(timestamp)
             image_path = os.path.join(date_dir, f"{final_text}_{safe_ts}.jpg")
-            cv2.imwrite(image_path, final_roi)
+            # cv2.imwrite는 Windows에서 한글 파일명을 깨뜨려 DB 경로와 실제 파일명이 달라짐
+            cv2.imencode(".jpg", final_roi)[1].tofile(image_path)
 
         insert_plate_log(
             conn, final_text, plate_color, plate_type, final_conf,
