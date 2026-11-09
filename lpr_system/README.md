@@ -69,6 +69,24 @@ python query_tool.py blocklist                # 블랙리스트 전체 조회
 python query_tool.py purge 90                 # 90일 이전 기록 삭제
 ```
 
+`load_demo_data.py`로 데모 데이터를 불러온 DB 사본에서 실행한 결과. `purge`는 인식 기록 `plate_logs`만 지우고, 확인 질문에 yes를 입력해 60일보다 오래된 기록을 지운 화면.
+
+| `all`, `plate` 조회 | `date`, `stats` 조회 |
+|---|---|
+| <img src="../assets/lpr_system_query_all_plate.png" width="420"> | <img src="../assets/lpr_system_query_date_stats.png" width="420"> |
+
+<img src="../assets/lpr_system_query_manage.png" width="480">
+
+### 데모 `demo.py`
+
+```bash
+python demo.py
+```
+
+합성 번호판 5장을 만들어 색 분류·전처리 후 DB에 저장하고, 화이트리스트 대조·최근 기록·타입별 통계까지 출력. 빈 DB에서 실행한 결과.
+
+<img src="../assets/lpr_system_demo.png" width="480">
+
 ---
 
 ## 주요 설정값

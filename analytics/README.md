@@ -5,8 +5,9 @@ Streamlit 대시보드로 시각화한다. 검출·인식 파이프라인이 만
 비즈니스 인사이트로 바꾸는 것이 목적.
 
 > **데이터 안내**: 실 카메라 배포 전이라 `demo_parking.db`는 합성 데이터다.
-> 스키마는 `lpr_system/database.py`와 완전히 동일하므로, 실제 데이터가
-> 쌓이면 `DB_PATH`만 `lpr_system/parking.db`로 바꿔 그대로 사용 가능하다.
+> 테이블은 분석에 쓰는 `plate_logs`, `entry_exit_log`, `whitelist` 3개뿐이고, 앱 DB의 `blacklist`, `camera_config`, `overstay_log`는 없음.
+> `plate_logs`, `entry_exit_log` 컬럼은 `lpr_system/database.py`와 같고, `whitelist`에는 앱 DB의 `phone`, `memo`, `expires_at` 컬럼이 없음.
+> 대시보드와 `queries.sql`은 세 테이블의 공통 컬럼만 쓰므로, 실제 데이터가 쌓이면 `DB_PATH`만 `lpr_system/parking.db`로 바꿔 그대로 사용 가능.
 
 ## 구성
 
@@ -75,6 +76,8 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 | <img src="../assets/analytics_sql_pairing.png" width="420"> | <img src="../assets/analytics_sql_daily.png" width="420"> |
 | **3·4번 시간대별 입차, 요일별 방문 대수·평균 체류시간** | **5·6·7번 재방문 순위, 체류시간 구간, 정기 vs 일반 비중** |
 | <img src="../assets/analytics_sql_hour_weekday.png" width="300"> | <img src="../assets/analytics_sql_rank_bucket.png" width="300"> |
+
+재방문 TOP 10은 대시보드와 쿼리의 집계 방식이 다름. 대시보드는 출차까지 끝난 방문 수로 정렬해 위에서 10대를 자르고, `queries.sql` 5번은 입차 건수에 `RANK()`를 매겨 10위 이내를 모두 출력. 데모 데이터에는 공동 4위가 10대라 쿼리 결과는 13행.
 
 ---
 

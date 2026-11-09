@@ -113,8 +113,9 @@ def cmd_blocklist(conn):
     print(f"{'번호판':^14}  {'사유':^30}  {'등록일':^12}")
     print("─" * 62)
     for r in rows:
-        print(f"{r['plate_text']:^14}  {r.get('reason',''):^30}  "
-              f"{r.get('registered_at','')[:10]:^12}")
+        r = dict(r)   # sqlite3.Row에는 .get()이 없음
+        print(f"{r['plate_text']:^14}  {r.get('reason') or '':^30}  "
+              f"{(r.get('registered_at') or '')[:10]:^12}")
 
 
 def cmd_purge(conn, days=90):
