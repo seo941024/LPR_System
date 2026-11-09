@@ -35,6 +35,26 @@ python app_pyqt6.py
 
 앱 화면: 대시보드, 번호판 검색, 등록차량, 블랙리스트, 카메라, 영상파일, 설정관리, 통계, 엑셀내보내기, 요금계산
 
+### 앱 실행 화면
+
+`load_demo_data.py`로 데모 데이터를 불러온 `parking.db`의 사본으로 앱을 띄워 메뉴별로 찍은 화면. 창 크기 1600×940. 영상 파일 처리 화면은 [저장소 README](../README.md) 첫 그림 참고.
+
+<img src="../assets/lpr_system_app_dashboard.png" width="900">
+
+*대시보드. 총 인식 2,188건, 최근 인식 로그, 주차 중 차량, 경보 알림 목록 표시.*
+
+| 번호판 검색 · 전체 기록 | 번호판 검색 · `5506` 부분 일치 검색 |
+|---|---|
+| <img src="../assets/lpr_system_app_search_all.png" width="420"> | <img src="../assets/lpr_system_app_search_plate.jpg" width="420"> |
+| **등록차량 · 데모 정기 이용 차량 40대** | **카메라 · 기본 카메라 `CAM_01`** |
+| <img src="../assets/lpr_system_app_whitelist.png" width="420"> | <img src="../assets/lpr_system_app_camera.png" width="420"> |
+| **설정관리 · 투표·쿨다운·편집거리 설정값** | **통계 · 2026-09-16 시간대별 인식·입출차 차트** |
+| <img src="../assets/lpr_system_app_settings.png" width="420"> | <img src="../assets/lpr_system_app_stats.png" width="420"> |
+| **엑셀내보내기 · 4주 기간, 개인정보 가림 선택 후 인식 기록 2,188건 저장** | **요금계산 · 요금 설정과 주차 중 차량 조회** |
+| <img src="../assets/lpr_system_app_export_done.png" width="420"> | <img src="../assets/lpr_system_app_fee.png" width="420"> |
+
+데모 데이터 기간이 2026-08-30 ~ 09-26이라 오늘 인식 0건, 모든 입차에 출차 기록이 있어 주차 중 차량 0대로 표시.
+
 ### 명령줄 조회 (`query_tool.py`)
 
 ```bash

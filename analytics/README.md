@@ -43,12 +43,38 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 - 정기(화이트리스트) vs 일반 방문 비중
 - 재방문(단골) 차량 TOP 10
 
+### 대시보드 실행 화면
+
+`dash_env`에서 `streamlit run dashboard.py`로 띄운 대시보드 화면. 데이터는 `demo_parking.db` 합성 데이터 28일분.
+
+**기간·핵심 지표, 일별 방문 대수·추정 매출 추이**
+
+<img src="../assets/analytics_dashboard_overview.png" width="900">
+
+| 시간대별 입차 패턴, 요일별 평균 체류시간 | 체류시간 구간별 분포, 정기 이용 vs 일반 방문 비중 |
+|---|---|
+| <img src="../assets/analytics_dashboard_hour_weekday.png" width="420"> | <img src="../assets/analytics_dashboard_duration_share.png" width="420"> |
+
+**재방문 차량 TOP 10 표**
+
+<img src="../assets/analytics_dashboard_top10.png" width="700">
+
 ## SQL 포인트
 
 `entry_exit_log`는 ENTRY/EXIT이 각각 별도 행이라, `LAG() OVER (PARTITION BY plate_text ORDER BY timestamp)`
 로 같은 번호판의 직전 이벤트를 끌어와 방문 1건(입차~출차)으로 재구성한다.
 요금 계산 로직(`parking_fee.py`)도 CASE 문으로 SQL에 동일하게 이식해
 매출을 직접 집계한다. 자세한 쿼리는 `queries.sql` 참고.
+
+### 쿼리 실행 결과
+
+`sqlite3 -readonly -header -column demo_parking.db < queries.sql` 실행 결과. 쿼리 7종의 출력을 순서대로 나눠 담은 화면.
+
+| 1번 입차·출차 페어링, 방문 앞 20건 | 2번 일별 방문 대수·추정 매출 |
+|---|---|
+| <img src="../assets/analytics_sql_pairing.png" width="420"> | <img src="../assets/analytics_sql_daily.png" width="420"> |
+| **3·4번 시간대별 입차, 요일별 방문 대수·평균 체류시간** | **5·6·7번 재방문 순위, 체류시간 구간, 정기 vs 일반 비중** |
+| <img src="../assets/analytics_sql_hour_weekday.png" width="300"> | <img src="../assets/analytics_sql_rank_bucket.png" width="300"> |
 
 ---
 

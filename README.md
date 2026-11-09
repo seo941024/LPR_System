@@ -219,6 +219,10 @@ PaddleOCR을 유지한 근거는 노란 영업용 1줄 번호판(5/7 대 3/7)이
 | 체류시간 구간 분포 | CASE 구간화 (30분 이하, 2시간 이하, 6시간 이하, 6시간 초과) |
 | 정기 vs 일반 방문 비중 | `whitelist` LEFT JOIN |
 
+<img src="assets/analytics_dashboard_overview.png" width="800">
+
+*Streamlit 대시보드 실행 화면. 기간·핵심 지표와 일별 방문 대수·추정 매출 추이, 나머지 차트와 쿼리 실행 결과는 [`analytics/README.md`](analytics/README.md) 참고.*
+
 같은 데이터를 SQLite·Power Query·Power BI·Databricks로 다룬 내용은 [`analytics/README.md`](analytics/README.md)에 정리했다.
 
 ---
@@ -288,6 +292,10 @@ python app_pyqt6.py
 - 글자 크기: 본문·버튼·입력창·표·상태 표시줄 19px로 통일.
 - 뱃지·태그: 글자 18px, 크기 84×36px 고정. 등록·차단·입차·출차 등 글자 수와 관계없이 같은 크기.
 - 엑셀 내보내기: 개인정보 가림 처리 선택 시 번호판 끝 2자리와 연락처 가운데 자리를 `*`로 가림.
+
+<img src="assets/lpr_system_app_search_all.png" width="800">
+
+*데모 데이터를 불러온 앱의 번호판 검색 화면. 메뉴별 화면은 [`lpr_system/README.md`](lpr_system/README.md) 참고.*
 
 ### 분석 대시보드
 
