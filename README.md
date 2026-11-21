@@ -3,9 +3,9 @@
 영상에서 차량 번호판을 검출·인식해 입·출차 기록을 SQLite에 저장하고,
 쌓인 기록을 SQL로 분석하는 개인 프로젝트.
 
-<img src="https://raw.githubusercontent.com/seo941024/LPR_System/master/assets/app_screenshot.png" width="800">
+<img src="assets/lpr_demo.gif" width="800" alt="LPR_System 화면 순서: 영상 파일 처리, 입·출차 기록 조회, 불법 주정차 의심 알림, SQL 분석 대시보드">
 
-*영상 파일 처리 화면. 번호판이 가려진 CCTV 영상이라 검출 박스만 표시되고 번호는 읽지 못한 상태.*
+*화면 순서: 영상 파일 처리 → 입·출차 기록 조회 → 불법 주정차 의심 알림 → SQL 분석 대시보드. 첫 화면은 번호판이 가려진 CCTV 영상이라 검출 박스만 표시되고 번호는 읽지 못한 상태.*
 
 ---
 
