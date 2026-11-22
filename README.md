@@ -18,6 +18,17 @@
 | 데이터 | 검출 학습: AIHub 차량 이미지 10만 장 / 인식 검증: 촬영 도로 영상 6개 / 분석: 생성한 4주 입·출차 데이터 |
 | 기술 | Python, YOLOv11 (Ultralytics), ByteTrack, PaddleOCR, OpenCV, PyQt6, SQLite, SQL, Streamlit, Plotly |
 
+## 기획 과정
+
+| 단계 | 내용 |
+|---|---|
+| 주제 선정 | YOLO 검출 모델의 학습·적용 과정 이해 목적 |
+| 기존 사례 | 상용 주차 관제(아이파킹·아마노코리아): 번호 인식·무인 정산·입출차 이력, 내부 구조 비공개 / GitHub 공개 프로젝트: 검출·인식 중심, 입·출차 기록을 다루는 경우도 정산·차단기 중심 |
+| 개선 방향 | 인식 결과의 입·출차 기록화와 이용 패턴·매출 분석 활용, 인식 실패 원인의 단계별 확인 |
+| 차별점 | 원본 인식 로그·입출차 이벤트 분리 저장, SQL 기반 방문 단위 묶기·매출 집계, OCR 실패 원인 분리 실험 |
+
+*기존 사례: 2026년 11월 확인 기준 ([아이파킹](https://www.iparking.co.kr/kr/parking/fee_settlement.php), [아마노코리아](https://www.amano.co.kr/common/business/business01.php), GitHub 공개 프로젝트 [1](https://github.com/gyupro/EasyKoreanLpDetector)·[2](https://github.com/JHKINI/nextframe_opencv)·[3](https://github.com/jykimqwer/ParkingManagementSystem)).*
+
 ## 핵심 내용
 
 | 구분 | 내용 | 근거 |
@@ -53,7 +64,7 @@ flowchart LR
 |---|---|
 | 데이터 | AIHub 차량 이미지 라벨 10만 개, JSON 라벨을 YOLO 형식으로 변환 (`json_to_yolo.py`) |
 | 분할 | 학습 9만 / 검증 1만, 무작위 9:1 (`make_val.py`) |
-| 모델 | YOLOv11m, 클래스 1개(plate) |
+| 모델 | YOLOv11m, 클래스 1개(plate). 학습·적용 과정 이해가 목적이라 최신 버전 대신 이전 버전 사용 |
 | 설정 | 100 epoch, 입력 640px, batch 16, patience 20 (`train.py`) |
 | 학습 시간 | 약 49시간 (GPU 1장) |
 | 결과 (100 epoch, 검증 데이터) | Precision 0.958 · Recall 0.958 · mAP50 0.931 · mAP50-95 0.862 |
