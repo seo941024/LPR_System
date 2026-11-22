@@ -65,7 +65,7 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 `entry_exit_log`는 ENTRY/EXIT이 각각 별도 행이라, `LAG() OVER (PARTITION BY plate_text ORDER BY timestamp)`
 로 같은 번호판의 직전 이벤트를 끌어와 방문 1건(입차~출차)으로 재구성한다.
 `queries.sql`에서는 요금 계산 로직(`parking_fee.py`)도 CASE 문으로 SQL에 동일하게 이식해
-매출을 직접 집계한다. 자세한 쿼리는 `queries.sql` 참고.
+SQL 안에서 매출을 집계한다. 자세한 쿼리는 `queries.sql` 참고.
 
 ### 쿼리 실행 결과
 
@@ -84,7 +84,7 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 ## 데이터 도구 탐색
 
 같은 데이터셋(`plate_logs`, `entry_exit_log`, `whitelist`)을 SQL 실행 환경에만
-머물지 않고 여러 데이터 도구로 직접 다뤄봤다. CSV로 내보낸 뒤 각 도구에
+머물지 않고 여러 데이터 도구로 다뤄봤다. CSV로 내보낸 뒤 각 도구에
 맞는 방식으로 적재·탐색·시각화하는 과정을 연습했다.
 
 **DB Browser for SQLite** — 원본 쿼리 검증
