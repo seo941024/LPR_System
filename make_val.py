@@ -8,12 +8,13 @@ import random
 from pathlib import Path
 from tqdm import tqdm
 
-LABELS_DIR = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\yolo_labels"
-IMAGES_DIR = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\PlateSample\images\train"
-OUT_TRAIN_IMG = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\dataset\images\train"
-OUT_VAL_IMG   = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\dataset\images\val"
-OUT_TRAIN_LBL = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\dataset\labels\train"
-OUT_VAL_LBL   = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\dataset\labels\val"
+ROOT = Path(__file__).resolve().parent  # 저장소 폴더 기준 경로
+LABELS_DIR = ROOT / "yolo_labels"
+IMAGES_DIR = ROOT / "PlateSample" / "images" / "train"
+OUT_TRAIN_IMG = ROOT / "dataset" / "images" / "train"
+OUT_VAL_IMG   = ROOT / "dataset" / "images" / "val"
+OUT_TRAIN_LBL = ROOT / "dataset" / "labels" / "train"
+OUT_VAL_LBL   = ROOT / "dataset" / "labels" / "val"
 VAL_RATIO = 0.1
 
 for d in [OUT_TRAIN_IMG, OUT_VAL_IMG, OUT_TRAIN_LBL, OUT_VAL_LBL]:

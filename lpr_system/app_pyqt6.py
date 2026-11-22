@@ -2229,9 +2229,9 @@ class MainWindow(QMainWindow):
         gpu_text_col = QVBoxLayout(); gpu_text_col.setSpacing(3)
         gpu_title = QLabel("GPU 가속 (PaddleOCR)")
         gpu_title.setStyleSheet(f"font-weight: bold; font-size: 18px; color: {C_TEXT};")
-        gpu_desc  = QLabel("OCR 추론을 GPU로 실행. CPU 대비 5~10배 빠름.")
+        gpu_desc  = QLabel("OCR 추론 장치 선택. 기본은 CPU 모드(YOLO 검출은 GPU 사용).")
         gpu_desc.setObjectName("Muted")
-        gpu_rec   = QLabel("권장: CUDA GPU 사용 가능하면 ON")
+        gpu_rec   = QLabel("권장: OFF (CPU 전용 PaddlePaddle 설치 기준)")
         gpu_rec.setStyleSheet(f"color: {C_ACCENT}; font-size: 16px;")
         gpu_text_col.addWidget(gpu_title); gpu_text_col.addWidget(gpu_desc); gpu_text_col.addWidget(gpu_rec)
         gl.addLayout(gpu_text_col, 1)
@@ -2260,26 +2260,28 @@ class MainWindow(QMainWindow):
         params = [
             ("투표 임계값",
              "해당 프레임 수 이상 득표한 결과 확정. 높을수록 안정적이나 느림.",
-             "권장 7 / 최소 5", pl.VOTE_FRAMES),
+             pl.VOTE_FRAMES),
             ("확정 득표율 (0~1)",
              "최다 득표 텍스트가 전체 표수의 이 비율 이상이어야 확정.",
-             "0.4 (40%)", pl.VOTE_WIN_RATIO),
+             pl.VOTE_WIN_RATIO),
             ("쿨다운 (초)",
-             "같은 번호판의 재검출 방지 시간. 짧을수록 중복 줄어듦.",
-             "권장 30 / 입출차 60", pl.COOLDOWN_SEC),
+             "같은 번호판을 다시 기록하지 않는 시간. 길수록 같은 차량으로 묶는 범위 증가.",
+             pl.COOLDOWN_SEC),
             ("처리 주기 (N프레임)",
              "N 프레임마다 OCR 1회 실행. 낮을수록 투표 샘플 증가.",
-             "3", pl.PROCESS_EVERY_N),
+             pl.PROCESS_EVERY_N),
             ("Bbox IoU 임계값",
              "두 검출이 크게 겹칠 때 같은 번호판으로 병합.",
-             "0.3", pl.VOTE_IOU_TH),
+             pl.VOTE_IOU_TH),
             ("Fuzzy 편집거리",
              "이 거리 이하의 텍스트는 같은 차량으로 간주. 0=정확히 일치만",
-             "2", pl.FUZZY_DIST),
+             pl.FUZZY_DIST),
         ]
+        # 화면을 만들 때의 pipeline.py 값 = 기본값 (적용 전이므로 원래 값)
+        self._param_defaults = [str(val) for _, _, val in params]
         self._set_fields = []
-        for title, desc, rec, val in params:
-            card, field = self._param_card(title, desc, rec, str(val))
+        for title, desc, val in params:
+            card, field = self._param_card(title, desc, str(val), str(val))
             lo.addWidget(card)
             self._set_fields.append(field)
 
@@ -2307,7 +2309,7 @@ class MainWindow(QMainWindow):
         text_col = QVBoxLayout(); text_col.setSpacing(3)
         t = QLabel(title); t.setStyleSheet(f"font-weight: bold; font-size: 18px; color: {C_TEXT};")
         d = QLabel(desc);  d.setObjectName("Muted")
-        r = QLabel(f"권장: {recommend}"); r.setStyleSheet(f"color: {C_ACCENT}; font-size: 16px;")
+        r = QLabel(f"기본값: {recommend}"); r.setStyleSheet(f"color: {C_ACCENT}; font-size: 16px;")
         text_col.addWidget(t); text_col.addWidget(d); text_col.addWidget(r)
         lo.addLayout(text_col, 1)
         field = QLineEdit(value); field.setFixedWidth(146)
@@ -2361,7 +2363,7 @@ class MainWindow(QMainWindow):
             self.set_status_lbl.setStyleSheet(f"color: {C_RED}; font-size: 19px;")
 
     def reset_settings(self):
-        defaults = ["7", "0.4", "30", "3", "0.3", "2"]
+        defaults = self._param_defaults
         for f, v in zip(self._set_fields, defaults):
             f.setText(v)
         self.set_status_lbl.setText("기본값으로 복원됨")

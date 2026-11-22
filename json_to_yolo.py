@@ -9,9 +9,10 @@ from pathlib import Path
 from PIL import Image
 from tqdm import tqdm
 
-ANNOTATIONS_DIR = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\PlateSample\annotations"
-IMAGES_DIR      = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\PlateSample\images\train"
-OUTPUT_LABELS   = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\yolo_labels"
+ROOT = Path(__file__).resolve().parent  # 저장소 폴더 기준 경로
+ANNOTATIONS_DIR = ROOT / "PlateSample" / "annotations"
+IMAGES_DIR      = ROOT / "PlateSample" / "images" / "train"
+OUTPUT_LABELS   = ROOT / "yolo_labels"
 
 os.makedirs(OUTPUT_LABELS, exist_ok=True)
 

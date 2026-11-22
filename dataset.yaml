@@ -1,6 +1,6 @@
-path: C:/Users/AISW_203_106/Desktop/LPR_Parking/dataset
-train: images/train
-val: images/val
+# path 생략: 이 파일이 있는 저장소 폴더 기준
+train: dataset/images/train
+val: dataset/images/val
 
 nc: 1
 names: ['plate']

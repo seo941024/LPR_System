@@ -7,8 +7,9 @@ import random
 from pathlib import Path
 from tqdm import tqdm
 
-IMAGES_DIR  = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\PlateSample\images"
-OUTPUT_DIR  = r"C:\Users\AISW_203_106\Desktop\LPR_Parking\ocr_dataset"
+ROOT = Path(__file__).resolve().parent  # 저장소 폴더 기준 경로
+IMAGES_DIR  = ROOT / "PlateSample" / "images"
+OUTPUT_DIR  = ROOT / "ocr_dataset"
 LIMIT       = 300000  # 30만장 사용
 VAL_RATIO   = 0.1
 

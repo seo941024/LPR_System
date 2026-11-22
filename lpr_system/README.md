@@ -37,7 +37,7 @@ python app_pyqt6.py
 
 ### 앱 실행 화면
 
-`load_demo_data.py`로 데모 데이터를 불러온 `parking.db`의 사본으로 앱을 띄워 메뉴별로 찍은 화면. 창 크기 1600×940. 영상 파일 처리 화면은 [저장소 README](../README.md) 첫 그림 참고.
+`load_demo_data.py`로 데모 데이터를 불러온 `parking.db`의 사본으로 앱을 띄워 메뉴별로 찍은 화면. 창 크기 1600×940.
 
 <img src="../assets/lpr_system_app_dashboard.png" width="900">
 

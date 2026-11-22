@@ -11,7 +11,7 @@ from typing import List, Tuple, Optional, Dict
 
 # ── YOLO 모델 ────────────────────────────────────────────────────
 # YOLOv11m, AIHub 부감(overhead) 각도 데이터 10만장 학습.
-# 실제 배포 카메라도 부감 각도이므로 이 모델을 사용한다.
+# 설치 대상 카메라도 부감 각도로 가정하고 이 모델을 사용한다.
 _MODELS_DIR  = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 _YOLO_PT     = os.path.join(_MODELS_DIR, "plate_yolo11m.pt")
 _YOLO_MODEL  = None

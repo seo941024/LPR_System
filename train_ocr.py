@@ -4,6 +4,9 @@ PaddleOCR 인식 모델 파인튜닝
 from paddleocr import PaddleOCR
 import subprocess
 import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.as_posix()  # 저장소 폴더 기준 경로
 
 if __name__ == '__main__':
     cmd = [
@@ -14,11 +17,11 @@ if __name__ == '__main__':
         "-o",
         "Global.pretrained_model=ch_PP-OCRv4_rec_train/best_accuracy",
         "Global.character_dict_path=ppocr/utils/ppocr_keys_v1.txt",
-        "Train.dataset.data_dir=C:/Users/AISW_203_106/Desktop/LPR_Parking/PlateSample/images",
-        "Train.dataset.label_file_list=[C:/Users/AISW_203_106/Desktop/LPR_Parking/ocr_dataset/train_list.txt]",
-        "Eval.dataset.data_dir=C:/Users/AISW_203_106/Desktop/LPR_Parking/PlateSample/images",
-        "Eval.dataset.label_file_list=[C:/Users/AISW_203_106/Desktop/LPR_Parking/ocr_dataset/val_list.txt]",
-        "Global.save_model_dir=C:/Users/AISW_203_106/Desktop/LPR_Parking/ocr_output",
+        f"Train.dataset.data_dir={ROOT}/PlateSample/images",
+        f"Train.dataset.label_file_list=[{ROOT}/ocr_dataset/train_list.txt]",
+        f"Eval.dataset.data_dir={ROOT}/PlateSample/images",
+        f"Eval.dataset.label_file_list=[{ROOT}/ocr_dataset/val_list.txt]",
+        f"Global.save_model_dir={ROOT}/ocr_output",
         "Train.loader.batch_size_per_card=128",
         "Global.epoch_num=50",
         "Global.eval_batch_step=[0,1000]",
