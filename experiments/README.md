@@ -7,7 +7,7 @@
 
 | 폴더 | 실험 내용 | 문서 |
 |---|---|---|
-| [`detector_ocr_check/`](detector_ocr_check) | 이전 버전 인식 실패 원인 분리. 수동 지정한 번호판 영역 21개로 PaddleOCR·EasyOCR 비교, 한글 검사 적용 전후 오답 수 비교 | [README](detector_ocr_check/README.md) |
+| [`detector_ocr_check/`](detector_ocr_check) | 이전 버전 인식 실패 원인 분리. 지정한 번호판 영역 21개로 PaddleOCR·EasyOCR 비교, 한글 검사 적용 전후 오답 수 비교 | [README](detector_ocr_check/README.md) |
 
 ## 진행 방식
 

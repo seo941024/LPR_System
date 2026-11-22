@@ -1,7 +1,7 @@
 # 검출·OCR 검증 실험
 
 이전 버전(YOLO n + EasyOCR)은 번호판을 거의 읽지 못했고, 대부분의 프레임이 색상·윤곽선 기반 후보 검출(이하 폴백)로 처리되었다.
-인식 실패가 OCR 단계 문제인지 확인하기 위해, 번호판 영역을 수동으로 지정해 OCR만 따로 비교했다.
+인식 실패가 OCR 단계 문제인지 확인하기 위해, 번호판 영역을 지정해 OCR만 따로 비교했다.
 영상은 길가에서 눈높이로 찍어 학습 데이터와 촬영 각도가 달라, YOLO 검출 결과는 비교에 쓰지 않았다.
 
 ## 실험 조건
@@ -12,7 +12,7 @@
 | 프레임 | 1초 간격 185장, 가로 1280px로 축소 |
 | 검출·OCR 코드 | 앱 코드(`detector.py`, `ocr_engine.py`, `pipeline.py`)를 수정 없이 불러와 사용 |
 | EasyOCR 조건 | 앱 `read_plate`와 같은 신뢰도 기준·정규식·2줄 번호판 줄 순서 재시도 |
-| OCR 단독 비교 | 프레임에서 번호판 영역 21개(차량 17대)를 수동 지정해 잘라낸 이미지 |
+| OCR 단독 비교 | 프레임에서 번호판 영역 21개(차량 17대)를 지정해 잘라낸 이미지 |
 
 ## 결과 요약
 
@@ -25,7 +25,7 @@
 
 ## 비교 1. PaddleOCR vs EasyOCR (같은 번호판 영역)
 
-검출 단계 영향을 빼기 위해 번호판 영역을 수동으로 지정해 잘라내고, 두 OCR을 같은 후처리 규칙으로 비교했다.
+검출 단계 영향을 빼기 위해 번호판 영역을 지정해 잘라내고, 두 OCR을 같은 후처리 규칙으로 비교했다.
 
 | 번호판 | 이미지 | PaddleOCR | EasyOCR |
 |---|---|---|---|
@@ -101,7 +101,7 @@
 # 1단계 (lpr_env): 영상 프레임에서 YOLO·폴백 후보 영역 추출 + PaddleOCR
 python step1_crops_paddle.py --videos 영상폴더 --out data --files 영상1.mp4 영상2.mp4 ...
 
-# 2단계 (lpr_env): 수동 지정한 번호판 영역(data/gt/plates, data/gt/gt_labels.csv) + PaddleOCR
+# 2단계 (lpr_env): 지정한 번호판 영역(data/gt/plates, data/gt/gt_labels.csv) + PaddleOCR
 python step2_gt_paddle.py --gt data/gt
 
 # 3단계 (EasyOCR 전용 가상환경): 같은 이미지를 EasyOCR로 읽기

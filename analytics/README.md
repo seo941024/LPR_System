@@ -65,7 +65,7 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 `entry_exit_log`는 ENTRY/EXIT이 각각 별도 행이라, `LAG() OVER (PARTITION BY plate_text ORDER BY timestamp)`
 로 같은 번호판의 직전 이벤트를 끌어와 방문 1건(입차~출차)으로 재구성한다.
 `queries.sql`에서는 요금 계산 로직(`parking_fee.py`)도 CASE 문으로 SQL에 동일하게 이식해
-SQL 안에서 매출을 집계한다. 자세한 쿼리는 `queries.sql` 참고.
+매출을 집계한다. 자세한 쿼리는 `queries.sql` 참고.
 
 ### 쿼리 실행 결과
 
