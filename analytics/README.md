@@ -1,6 +1,6 @@
 # 주차장 입출차 데이터 분석
 
-LPR 시스템(`lpr_system/`)이 SQLite에 쌓는 입출차 로그를 SQL로 분석하고
+LPR 시스템(`lpr_system/`)이 SQLite에 쌓는 입출차 로그를 SQL(`queries.sql`)로 분석하고
 Streamlit 대시보드로 시각화한다. 검출·인식 파이프라인이 만든 데이터를
 비즈니스 인사이트로 바꾸는 것이 목적.
 
@@ -15,7 +15,7 @@ Streamlit 대시보드로 시각화한다. 검출·인식 파이프라인이 만
 |---|---|
 | `generate_sample_data.py` | 오피스 주차장 4주치 합성 데이터 생성 (정기 출퇴근 40대 + 방문 차량) |
 | `queries.sql` | 분석 쿼리 모음 — LAG 윈도우 함수로 입/출차 페어링, CTE, RANK 등 |
-| `dashboard.py` | Streamlit 대시보드 |
+| `dashboard.py` | Streamlit 대시보드. 입·출차 짝짓기는 SQL(LAG), 요금·집계·차트는 pandas·Plotly |
 | `demo_parking.db` | 생성된 샘플 DB (재실행 시 자동 갱신) |
 
 ## 실행
@@ -64,7 +64,7 @@ dash_env\Scripts\python -m streamlit run dashboard.py
 
 `entry_exit_log`는 ENTRY/EXIT이 각각 별도 행이라, `LAG() OVER (PARTITION BY plate_text ORDER BY timestamp)`
 로 같은 번호판의 직전 이벤트를 끌어와 방문 1건(입차~출차)으로 재구성한다.
-요금 계산 로직(`parking_fee.py`)도 CASE 문으로 SQL에 동일하게 이식해
+`queries.sql`에서는 요금 계산 로직(`parking_fee.py`)도 CASE 문으로 SQL에 동일하게 이식해
 매출을 직접 집계한다. 자세한 쿼리는 `queries.sql` 참고.
 
 ### 쿼리 실행 결과

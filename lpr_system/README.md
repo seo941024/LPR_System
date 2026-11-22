@@ -118,7 +118,7 @@ python demo.py
 
 **카메라 모드** (`pipeline.process_stream`)
 
-1. 프레임마다 `detect_plate_candidates` 실행 (YOLO 결과가 없거나 녹색 번호판 색이 보이면 폴백 검출 추가)
+1. 이전 처리가 끝났을 때만 새 프레임을 작업 스레드로 넘겨 `detect_plate_candidates` 실행 (YOLO 결과가 없거나 녹색 번호판 색이 보이면 폴백 검출 추가)
 2. `process_frame`: 크기 필터, 색 분류, OCR, 화이트리스트 교정, 한글 검사, 중복 제거, DB 기록
 3. 연결이 끊기면 5초 간격으로 재연결
 
